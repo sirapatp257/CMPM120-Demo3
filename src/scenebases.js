@@ -156,7 +156,7 @@ class Level extends Phaser.Scene {
          this.platformCollisions[p].active = (playerAbove && !this.drop.isDown);
       }
 
-      this.playerChar.setCollideWorldBounds(this.playerChar.body.onFloor() && !this.playerChar.body.onWall());
+      this.playerChar.setCollideWorldBounds(this.playerChar.body.onFloor() && this.playerChar.body.touching.down);
 
       if (this.playerChar.body.touching.down && this.jump.isDown) this.playerChar.setVelocityY(-500);
       
