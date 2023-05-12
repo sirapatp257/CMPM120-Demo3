@@ -18,34 +18,7 @@ class Level extends Phaser.Scene {
 
       this.cameras.main.fadeIn();
 
-      if (!this.anims.get("idle")) {
-         this.anims.create({
-            key: 'idle',
-            frames: this.anims.generateFrameNumbers('sharkman', {start: 0, end: 6}),
-            frameRate: 20,
-            repeat: -1,
-            repeatDelay: 1000
-         })
-   
-         this.anims.create({
-            key: 'move',
-            frames: this.anims.generateFrameNumbers('sharkman', {start: 7, end: 10}),
-            frameRate: 10,
-            repeat: -1
-         });
-   
-         this.anims.create({
-            key: 'jump',
-            frames: this.anims.generateFrameNumbers('sharkman', {start: 11, end: 11}),
-            repeat: -1
-         });
-   
-         this.anims.create({
-            key: 'fall',
-            frames: this.anims.generateFrameNumbers('sharkman', {start: 12, end: 12}),
-            repeat: -1
-         });
-      }
+      this.leftInvisWall = this.physics.add.body(0, 0, 2, 1080).setImmovable();
 
       this.playerChar = this.physics.add.sprite(this.spawnPoint.x, this.spawnPoint.y, 'sharkman')
          .setOrigin(0.5)
@@ -54,6 +27,8 @@ class Level extends Phaser.Scene {
          .setGravityY(400)
          .setCollideWorldBounds(true);
       this.playerChar.depth = 1;
+
+      this.physics.add.collider(this.playerChar, this.leftInvisWall);
 
       let floorGroup = this.physics.add.staticGroup();
 
@@ -72,11 +47,17 @@ class Level extends Phaser.Scene {
 
       if (levelData.platform) {
          this.platforms = [];
+         this.platformSpeeds = [];
+         this.platformBounds = [];
          this.platformCollisions = [];
          let count = 0;
          for (let platform of levelData.platform) {
-            let platformObj = this.physics.add.image(platform.x1, platform.y, 'platform').setImmovable(true);
+            let platformObj = this.physics.add.image(platform.x, platform.y, 'platform')
+               .setOrigin(0.5, 0)
+               .setImmovable(true);
             this.platforms[count] = platformObj;
+            this.platformSpeeds[count] = platform.speed ? platform.speed : 0;
+            this.platformBounds[count] = {"x" : platform.x, "y" : platform.y, "x2" : platform.x2, "y2" : platform.y2};
             this.platformCollisions[count] = this.physics.add.collider(this.playerChar, platformObj);
             ++count;
          }
@@ -152,17 +133,18 @@ class Level extends Phaser.Scene {
       if (this.level == 1) return;
 
       for (let p = 0; p < this.platforms.length; ++p) {
-         let playerAbove = this.playerChar.y < this.platforms[p].y;
+         let playerAbove = this.playerChar.body.bottom <= this.platforms[p].body.top;
          this.platformCollisions[p].active = (playerAbove && !this.drop.isDown);
+
+         if (this.platforms[p].x <= this.platformBounds[p].x) this.platforms[p].setVelocityX(this.platformSpeeds[p]);
+         else if (this.platforms[p].x >= this.platformBounds[p].x2) this.platforms[p].setVelocityX(-this.platformSpeeds[p]);
       }
 
       this.playerChar.setCollideWorldBounds(this.playerChar.body.onFloor() && this.playerChar.body.touching.down);
 
       if (this.playerChar.body.touching.down && this.jump.isDown) this.playerChar.setVelocityY(-500);
       
-      if (this.playerChar.body.y >= 1200) {
-         this.playerChar.setX(this.spawnPoint.x).setY(this.spawnPoint.y);
-      }
+      if (this.playerChar.body.y >= 1200) this.playerChar.setX(this.spawnPoint.x).setY(this.spawnPoint.y);
    }
 }
 
@@ -186,7 +168,7 @@ class LevelSummary extends Phaser.Scene {
       let seconds = (Math.floor(this.clearTime / 1000) % 60).toString().padStart(2, "0");
       let minutes = Math.floor(this.clearTime / 60000);
 
-      this.add.text(960, 120, "Level 1 Cleared")
+      this.add.text(960, 120, `Level ${this.level} Cleared`)
          .setFontSize(60)
          .setAlign('center')
          .setOrigin(0.5, 0);
@@ -230,6 +212,8 @@ class LevelSummary extends Phaser.Scene {
             });
          });
       }
-      // TODO: set up level 3 summary
+      else {
+         // TODO: set up level 3 summary
+      }
    }
 }

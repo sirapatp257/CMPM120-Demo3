@@ -17,7 +17,7 @@
          {"start" : 14, "count" : 2}
       ],
       "platform" : [
-         {"x1" : 300, "y" : 680, "x2" : 1740}
+         {"x" : 300, "y" : 600, "x2" : 1740, "speed" : 200}
       ],
       "collectible" : {"imgKey" : "weapon", "x" : 900, "y" : 720},
       "nextLevelActions" : "charge up and fire energy balls"

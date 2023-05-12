@@ -43,6 +43,36 @@ class Level1 extends Level {
    constructor() {
       super(1);
    }
+   create() {
+      this.anims.create({
+         key: 'idle',
+         frames: this.anims.generateFrameNumbers('sharkman', {start: 0, end: 6}),
+         frameRate: 20,
+         repeat: -1,
+         repeatDelay: 1000
+      })
+
+      this.anims.create({
+         key: 'move',
+         frames: this.anims.generateFrameNumbers('sharkman', {start: 7, end: 10}),
+         frameRate: 10,
+         repeat: -1
+      });
+
+      this.anims.create({
+         key: 'jump',
+         frames: this.anims.generateFrameNumbers('sharkman', {start: 11, end: 11}),
+         repeat: -1
+      });
+
+      this.anims.create({
+         key: 'fall',
+         frames: this.anims.generateFrameNumbers('sharkman', {start: 12, end: 12}),
+         repeat: -1
+      });
+
+      super.create();
+   }
 }
 
 class Level1Summary extends LevelSummary {
