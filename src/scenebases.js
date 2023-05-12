@@ -18,7 +18,8 @@ class Level extends Phaser.Scene {
 
       this.cameras.main.fadeIn();
 
-      this.leftInvisWall = this.physics.add.body(0, 0, 2, 1080).setImmovable();
+      let leftInvisWall = this.physics.add.body(0, 0, 2, 1080).setImmovable(true);
+      let rightInvisWall = this.physics.add.body(1920, 0, 2, 1080).setImmovable(true);
 
       this.playerChar = this.physics.add.sprite(this.spawnPoint.x, this.spawnPoint.y, 'sharkman')
          .setOrigin(0.5)
@@ -28,7 +29,8 @@ class Level extends Phaser.Scene {
          .setCollideWorldBounds(true);
       this.playerChar.depth = 1;
 
-      this.physics.add.collider(this.playerChar, this.leftInvisWall);
+      this.physics.add.collider(this.playerChar, leftInvisWall);
+      this.physics.add.collider(this.playerChar, rightInvisWall);
 
       let floorGroup = this.physics.add.staticGroup();
 

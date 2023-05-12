@@ -92,3 +92,9 @@ class Level2Summary extends LevelSummary {
       super(2);
    }
 }
+
+class Level3 extends Level {
+   constructor() {
+      super(3);
+   }
+}

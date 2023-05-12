@@ -10,7 +10,7 @@
    },
    "2" : {
       "spawn" : {"x" : 180, "y" : 660},
-      "goal" : {"x" : 1740, "y" : 720},
+      "goal" : {"x" : 1800, "y" : 720},
       "floor" : [
          {"start" : 0, "count" : 3},
          {"start" : 7, "count" : 1},
@@ -20,6 +20,18 @@
          {"x" : 300, "y" : 600, "x2" : 1740, "speed" : 200}
       ],
       "collectible" : {"imgKey" : "weapon", "x" : 900, "y" : 720},
-      "nextLevelActions" : "charge up and fire energy balls"
+      "nextLevelActions" : "charge up and launch energy balls"
+   },
+   "3" : {
+      "spawn" : {"x" : 180, "y" : 660},
+      "goal" : {"x" : 1800, "y" : 720},
+      "floor" : [
+         {"start" : 0, "count" : 3},
+         {"start" : 14, "count" : 2}
+      ],
+      "platform" : [
+         {"x" : 1200, "y" : 600, "x2" : 1740, "speed" : 200},
+         {"x" : 300, "y" : 600, "x2" : 880, "speed" : 200}
+      ]
    }
 }
