@@ -12,9 +12,23 @@ class Level extends Phaser.Scene {
       this.objectiveComplete = false;
       this.exitReached = false;
       this.fadeOutStarted = false;
+      this.chargeTime = 0;
 
       let levelData = this.cache.json.get('levelData')[this.level];
       this.spawnPoint = levelData.spawn;
+
+      let instruction = this.add.text(960, 200, levelData.tutorialText).setOrigin(0.5)
+         .setFontSize(30)
+         .setWordWrapWidth(1000);
+
+      this.tweens.add({
+         targets: instruction,
+         alpha: {start: 0.25, to: 1},
+         yoyo: true,
+         duration: 1000,
+         repeat: 3,
+         onComplete: () => instruction.setAlpha(0)
+      });
 
       this.cameras.main.fadeIn();
 
@@ -51,6 +65,7 @@ class Level extends Phaser.Scene {
          this.platforms = [];
          this.platformSpeeds = [];
          this.platformBounds = [];
+         this.platformsActive = [];
          this.platformCollisions = [];
          let count = 0;
          for (let platform of levelData.platform) {
@@ -61,6 +76,9 @@ class Level extends Phaser.Scene {
             this.platformSpeeds[count] = platform.speed ? platform.speed : 0;
             this.platformBounds[count] = {"x" : platform.x, "y" : platform.y, "x2" : platform.x2, "y2" : platform.y2};
             this.platformCollisions[count] = this.physics.add.collider(this.playerChar, platformObj);
+
+            this.platformsActive[count] = platform.inactive ? false : true;
+            platformObj.setVisible(this.platformsActive[count]);
             ++count;
          }
       }
@@ -90,6 +108,7 @@ class Level extends Phaser.Scene {
       this.right = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
       this.jump = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
       this.drop = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+      this.charge = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
 
       this.physics.add.overlap(this.playerChar, exit, () => {
          if (this.objectiveComplete) this.exitReached = true
@@ -136,7 +155,7 @@ class Level extends Phaser.Scene {
 
       for (let p = 0; p < this.platforms.length; ++p) {
          let playerAbove = this.playerChar.body.bottom <= this.platforms[p].body.top;
-         this.platformCollisions[p].active = (playerAbove && !this.drop.isDown);
+         this.platformCollisions[p].active = (this.platformsActive[p] && playerAbove && !this.drop.isDown);
 
          if (this.platforms[p].x <= this.platformBounds[p].x) this.platforms[p].setVelocityX(this.platformSpeeds[p]);
          else if (this.platforms[p].x >= this.platformBounds[p].x2) this.platforms[p].setVelocityX(-this.platformSpeeds[p]);
@@ -147,6 +166,17 @@ class Level extends Phaser.Scene {
       if (this.playerChar.body.touching.down && this.jump.isDown) this.playerChar.setVelocityY(-500);
       
       if (this.playerChar.body.y >= 1200) this.playerChar.setX(this.spawnPoint.x).setY(this.spawnPoint.y);
+
+      if (this.level == 2) return;
+
+      if (this.charge.isDown) {
+         console.log("Charging...");
+         this.chargeTime += dt;
+      }
+      else if (this.chargeTime > 0) {
+         console.log("Fire!");
+         this.chargeTime = 0;
+      }
    }
 }
 

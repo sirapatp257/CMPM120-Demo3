@@ -6,6 +6,7 @@
          {"start" : 0, "count" : 16}
       ],
       "collectible" : {"imgKey" : "boots", "x" : 120, "y" : 720},
+      "tutorialText" : "Press the left and right arrow keys to move around.",
       "nextLevelActions" : "jump and drop from platforms"
    },
    "2" : {
@@ -20,6 +21,7 @@
          {"x" : 300, "y" : 600, "x2" : 1740, "speed" : 200}
       ],
       "collectible" : {"imgKey" : "weapon", "x" : 900, "y" : 720},
+      "tutorialText" : "Press the up arrow key to jump. When on a platform, press the down arrow key to drop down.",
       "nextLevelActions" : "charge up and launch energy balls"
    },
    "3" : {
@@ -30,8 +32,9 @@
          {"start" : 14, "count" : 2}
       ],
       "platform" : [
-         {"x" : 1200, "y" : 600, "x2" : 1740, "speed" : 200},
-         {"x" : 300, "y" : 600, "x2" : 880, "speed" : 200}
-      ]
+         {"x" : 300, "y" : 600, "x2" : 880, "speed" : 200, "inactive" : true},
+         {"x" : 1200, "y" : 600, "x2" : 1740, "speed" : 200}
+      ],
+      "tutorialText" : "Hold the F key to charge a shot, then release to fire."
    }
 }
