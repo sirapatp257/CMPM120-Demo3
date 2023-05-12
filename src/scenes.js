@@ -5,6 +5,7 @@ class Intro extends Phaser.Scene {
       this.load.image("ground", "textures/Ground.png");
       this.load.image("underground", "textures/Underground.png");
       this.load.image("boots", "textures/Boots.png");
+      this.load.image("weapon", "textures/Weapon.png");
       this.load.image("exit", "textures/ExitSign.png");
       this.load.json("levelData", "miscellaneous/levels.json");
    }
@@ -46,5 +47,17 @@ class Level1 extends Level {
 class Level1Summary extends LevelSummary {
    constructor() {
       super(1);
+   }
+}
+
+class Level2 extends Level {
+   constructor() {
+      super(2);
+   }
+}
+
+class Level2Summary extends LevelSummary {
+   constructor() {
+      super(2);
    }
 }

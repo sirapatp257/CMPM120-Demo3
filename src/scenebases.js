@@ -14,6 +14,7 @@ class Level extends Phaser.Scene {
       this.fadeOutStarted = false;
 
       let levelData = this.cache.json.get('levelData')[this.level];
+      this.spawnPoint = levelData.spawn;
 
       this.cameras.main.fadeIn();
 
@@ -58,7 +59,7 @@ class Level extends Phaser.Scene {
          .setScale(2)
          .setSize(50, 120);
 
-      this.playerChar = this.physics.add.sprite(levelData.spawn.x, levelData.spawn.y, 'sharkman')
+      this.playerChar = this.physics.add.sprite(this.spawnPoint.x, this.spawnPoint.y, 'sharkman')
          .setOrigin(0.5)
          .setSize(60, 120) // Hitbox size, not sprite size
          .setScale(2)
@@ -115,13 +116,13 @@ class Level extends Phaser.Scene {
          this.playerChar.anims.play('move', true);
          
          this.playerChar.setFlipX(true);
-         this.playerChar.setVelocityX(-360);
+         this.playerChar.setVelocityX(-240);
       }
       else if (this.right.isDown) {
          this.playerChar.anims.play('move', true);
          
          this.playerChar.setFlipX(false);
-         this.playerChar.setVelocityX(360);
+         this.playerChar.setVelocityX(240);
       }
       else {
          this.playerChar.anims.play('idle', true);
@@ -145,6 +146,9 @@ class Level extends Phaser.Scene {
             // TODO: temporarily ignore collision with platforms
             this.floorCollision.active = false;
          }
+      }
+      else if (this.playerChar.body.y >= 1200) {
+         this.playerChar.setX(this.spawnPoint.x).setY(this.spawnPoint.y);
       }
    }
 }
@@ -206,6 +210,13 @@ class LevelSummary extends Phaser.Scene {
             duration: 1200,
             repeat: -1
          });
+
+         this.input.keyboard.on('keydown', () => {
+            this.cameras.main.fadeOut(1000, 0, 0, 0, (c, t) => {
+               if (t >= 1) this.scene.start(`lvl${this.level + 1}`);
+            });
+         });
       }
+      // TODO: set up level 3 summary
    }
 }

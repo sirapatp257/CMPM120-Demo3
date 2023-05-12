@@ -7,5 +7,16 @@
       ],
       "collectible" : {"imgKey" : "boots", "x" : 120, "y" : 720},
       "nextLevelActions" : "jump and drop from platforms"
+   },
+   "2" : {
+      "spawn" : {"x" : 180, "y" : 660},
+      "goal" : {"x" : 1740, "y" : 720},
+      "floor" : [
+         {"start" : 0, "count" : 3},
+         {"start" : 7, "count" : 1},
+         {"start" : 14, "count" : 2}
+      ],
+      "collectible" : {"imgKey" : "weapon", "x" : 900, "y" : 720},
+      "nextLevelActions" : "jump and drop from platforms"
    }
 }

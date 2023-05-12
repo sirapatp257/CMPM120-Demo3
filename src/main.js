@@ -13,7 +13,7 @@ let gameConfig = {
    },
    pixelArt: true,
    backgroundColor: '#031936',
-   scene: [Intro, Level1, Level1Summary],
+   scene: [Intro, Level1, Level1Summary, Level2, Level2Summary],
    title: "CMPM 120 - D3"
 };
 
