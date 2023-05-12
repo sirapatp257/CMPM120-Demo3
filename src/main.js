@@ -5,7 +5,15 @@ let gameConfig = {
       width: 1920,
       height: 1080
    },
-   scene: [],
+   physics: {
+      default: 'arcade',
+      arcade: {
+         debug: true
+      }
+   },
+   pixelArt: true,
+   backgroundColor: '#031936',
+   scene: [Intro, Level1, Level1Summary],
    title: "CMPM 120 - D3"
 };
 
