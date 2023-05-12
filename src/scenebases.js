@@ -18,32 +18,42 @@ class Level extends Phaser.Scene {
 
       this.cameras.main.fadeIn();
 
-      this.anims.create({
-         key: 'idle',
-         frames: this.anims.generateFrameNumbers('sharkman', {start: 0, end: 6}),
-         frameRate: 20,
-         repeat: -1,
-         repeatDelay: 1000
-      })
+      if (!this.anims.get("idle")) {
+         this.anims.create({
+            key: 'idle',
+            frames: this.anims.generateFrameNumbers('sharkman', {start: 0, end: 6}),
+            frameRate: 20,
+            repeat: -1,
+            repeatDelay: 1000
+         })
+   
+         this.anims.create({
+            key: 'move',
+            frames: this.anims.generateFrameNumbers('sharkman', {start: 7, end: 10}),
+            frameRate: 10,
+            repeat: -1
+         });
+   
+         this.anims.create({
+            key: 'jump',
+            frames: this.anims.generateFrameNumbers('sharkman', {start: 11, end: 11}),
+            repeat: -1
+         });
+   
+         this.anims.create({
+            key: 'fall',
+            frames: this.anims.generateFrameNumbers('sharkman', {start: 12, end: 12}),
+            repeat: -1
+         });
+      }
 
-      this.anims.create({
-         key: 'move',
-         frames: this.anims.generateFrameNumbers('sharkman', {start: 7, end: 10}),
-         frameRate: 10,
-         repeat: -1
-      });
-
-      this.anims.create({
-         key: 'jump',
-         frames: this.anims.generateFrameNumbers('sharkman', {start: 11, end: 11}),
-         repeat: -1
-      });
-
-      this.anims.create({
-         key: 'fall',
-         frames: this.anims.generateFrameNumbers('sharkman', {start: 12, end: 12}),
-         repeat: -1
-      });
+      this.playerChar = this.physics.add.sprite(this.spawnPoint.x, this.spawnPoint.y, 'sharkman')
+         .setOrigin(0.5)
+         .setSize(60, 120)
+         .setScale(2)
+         .setGravityY(400)
+         .setCollideWorldBounds(true);
+      this.playerChar.depth = 1;
 
       let floorGroup = this.physics.add.staticGroup();
 
@@ -57,19 +67,26 @@ class Level extends Phaser.Scene {
       let exit = this.physics.add.sprite(levelData.goal.x, levelData.goal.y, 'exit')
          .setOrigin(0.5)
          .setScale(2)
-         .setSize(50, 120);
-
-      this.playerChar = this.physics.add.sprite(this.spawnPoint.x, this.spawnPoint.y, 'sharkman')
-         .setOrigin(0.5)
-         .setSize(60, 120) // Hitbox size, not sprite size
-         .setScale(2)
-         .setGravityY(400)
-         .setCollideWorldBounds(true);
+         .setSize(50, 120); // Hitbox size, not sprite size
       
+
+      if (levelData.platform) {
+         this.platforms = [];
+         this.platformCollisions = [];
+         let count = 0;
+         for (let platform of levelData.platform) {
+            let platformObj = this.physics.add.image(platform.x1, platform.y, 'platform').setImmovable(true);
+            this.platforms[count] = platformObj;
+            this.platformCollisions[count] = this.physics.add.collider(this.playerChar, platformObj);
+            ++count;
+         }
+      }
+
       if (levelData.collectible) {
          let collectible = this.physics.add.sprite(levelData.collectible.x, levelData.collectible.y, levelData.collectible.imgKey)
          .setOrigin(0.5)
          .setSize(100, 100);
+         collectible.depth = 2;
 
          this.tweens.add({
             targets: collectible,
@@ -94,10 +111,8 @@ class Level extends Phaser.Scene {
       this.physics.add.overlap(this.playerChar, exit, () => {
          if (this.objectiveComplete) this.exitReached = true
       });
-      this.floorCollision = this.physics.add.collider(this.playerChar, floorGroup);
+      this.physics.add.collider(this.playerChar, floorGroup);
       this.stopwatch = 0;
-
-      this.input.keyboard.on('keyup-DOWN', () => this.floorCollision.active = true);
    }
 
    update(t, dt) {
@@ -136,18 +151,16 @@ class Level extends Phaser.Scene {
 
       if (this.level == 1) return;
 
-      if (this.playerChar.body.touching.down) {
-         this.playerChar.setCollideWorldBounds(false);
-
-         if (this.jump.isDown) {
-            this.playerChar.setVelocityY(-500);
-         }
-         else if (this.drop.isDown) {
-            // TODO: temporarily ignore collision with platforms
-            this.floorCollision.active = false;
-         }
+      for (let p = 0; p < this.platforms.length; ++p) {
+         let playerAbove = this.playerChar.y < this.platforms[p].y;
+         this.platformCollisions[p].active = (playerAbove && !this.drop.isDown);
       }
-      else if (this.playerChar.body.y >= 1200) {
+
+      this.playerChar.setCollideWorldBounds(this.playerChar.body.onFloor() && !this.playerChar.body.onWall());
+
+      if (this.playerChar.body.touching.down && this.jump.isDown) this.playerChar.setVelocityY(-500);
+      
+      if (this.playerChar.body.y >= 1200) {
          this.playerChar.setX(this.spawnPoint.x).setY(this.spawnPoint.y);
       }
    }

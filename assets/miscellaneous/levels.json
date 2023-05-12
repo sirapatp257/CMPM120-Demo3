@@ -16,7 +16,10 @@
          {"start" : 7, "count" : 1},
          {"start" : 14, "count" : 2}
       ],
+      "platform" : [
+         {"x1" : 300, "y" : 680, "x2" : 1740}
+      ],
       "collectible" : {"imgKey" : "weapon", "x" : 900, "y" : 720},
-      "nextLevelActions" : "jump and drop from platforms"
+      "nextLevelActions" : "charge up and fire energy balls"
    }
 }
