@@ -1,0 +1,11 @@
+{
+   "1" : {
+      "spawn" : {"x" : 360, "y" : 660},
+      "goal" : {"x" : 1740, "y" : 720},
+      "floor" : [
+         {"start" : 0, "count" : 16}
+      ],
+      "collectible" : {"imgKey" : "boots", "x" : 120, "y" : 720},
+      "nextLevelActions" : "jump and drop from platforms"
+   }
+}
