@@ -1,5 +1,9 @@
 # Poom P. - CMPM 120 Demo 3
 
+## Where to Play
+
+Follow [this link](https://sirapatp257.github.io/CMPM120-Demo3/) to access the game.
+
 ## Credits
 
 All artwork and sounds are made by me (Sirapat "Poom" Phunjamaneechot).
