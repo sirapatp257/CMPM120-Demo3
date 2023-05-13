@@ -8,7 +8,7 @@ let gameConfig = {
    physics: {
       default: 'arcade',
       arcade: {
-         debug: true
+         
       }
    },
    pixelArt: true,
