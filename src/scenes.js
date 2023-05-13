@@ -5,15 +5,15 @@ class Intro extends Phaser.Scene {
 
    preload() {
       this.load.path = "../assets/";
-      this.load.spritesheet("sharkman", "textures/Sharkman.png", { frameWidth: 120, frameHeight: 120 });
-      this.load.spritesheet("bullet", "textures/EnergyBall.png", { frameWidth: 120, frameHeight: 120 });
-      this.load.spritesheet("target", "textures/TargetBlock.png", { frameWidth: 120, frameHeight: 120 });
-      this.load.image("ground", "textures/Ground.png");
-      this.load.image("underground", "textures/Underground.png");
-      this.load.image("platform", "textures/Platform.png");
-      this.load.image("boots", "textures/Boots.png");
-      this.load.image("weapon", "textures/Weapon.png");
-      this.load.image("exit", "textures/ExitSign.png");
+      this.load.spritesheet("sharkman", "textures/sharkman.png", { frameWidth: 120, frameHeight: 120 });
+      this.load.spritesheet("bullet", "textures/energyBall.png", { frameWidth: 120, frameHeight: 120 });
+      this.load.spritesheet("target", "textures/targetBlock.png", { frameWidth: 120, frameHeight: 120 });
+      this.load.image("ground", "textures/ground.png");
+      this.load.image("underground", "textures/underground.png");
+      this.load.image("platform", "textures/platform.png");
+      this.load.image("boots", "textures/boots.png");
+      this.load.image("weapon", "textures/weapon.png");
+      this.load.image("exit", "textures/exitSign.png");
       this.load.json("levelData", "miscellaneous/levels.json");
    }
 
