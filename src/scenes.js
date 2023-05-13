@@ -1,4 +1,8 @@
 class Intro extends Phaser.Scene {
+   constructor() {
+      super('start');
+   }
+
    preload() {
       this.load.path = "../assets/";
       this.load.spritesheet("sharkman", "textures/Sharkman.png", { frameWidth: 120, frameHeight: 120 });
@@ -96,6 +100,12 @@ class Level2Summary extends LevelSummary {
 }
 
 class Level3 extends Level {
+   constructor() {
+      super(3);
+   }
+}
+
+class Level3Summary extends LevelSummary {
    constructor() {
       super(3);
    }

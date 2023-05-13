@@ -35,6 +35,7 @@
          {"x" : 300, "y" : 600, "x2" : 880, "speed" : 200, "inactive" : true},
          {"x" : 1200, "y" : 600, "x2" : 1740, "speed" : 200}
       ],
+      "target" : {"imgKey" : "target", "initialState" : 0, "x" : 1600, "y" : 360},
       "tutorialText" : "Hold the F key to charge a shot, then release to fire."
    }
 }

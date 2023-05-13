@@ -18,7 +18,7 @@ class Level extends Phaser.Scene {
       this.spawnPoint = levelData.spawn;
 
       let instruction = this.add.text(960, 200, levelData.tutorialText).setOrigin(0.5)
-         .setFontSize(30)
+         .setFontSize(40)
          .setWordWrapWidth(1000);
 
       this.tweens.add({
@@ -59,7 +59,6 @@ class Level extends Phaser.Scene {
          .setOrigin(0.5)
          .setScale(2)
          .setSize(50, 120); // Hitbox size, not sprite size
-      
 
       if (levelData.platform) {
          this.platforms = [];
@@ -85,8 +84,8 @@ class Level extends Phaser.Scene {
 
       if (levelData.collectible) {
          let collectible = this.physics.add.sprite(levelData.collectible.x, levelData.collectible.y, levelData.collectible.imgKey)
-         .setOrigin(0.5)
-         .setSize(100, 100);
+            .setOrigin(0.5)
+            .setSize(100, 100);
          collectible.depth = 2;
 
          this.tweens.add({
@@ -102,6 +101,13 @@ class Level extends Phaser.Scene {
             collectible.destroy();
             this.objectiveComplete = true;
          });
+      }
+      
+      if (levelData.target) {
+         this.target = this.physics.add.sprite(levelData.target.x, levelData.target.y, levelData.target.imgKey, levelData.target.initialState)
+            .setOrigin(0.5);
+
+         this.targetCharge = 0;
       }
 
       this.left = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
@@ -172,11 +178,63 @@ class Level extends Phaser.Scene {
       if (this.charge.isDown) {
          console.log("Charging...");
          this.chargeTime += dt;
+
+         if (this.chargeTime >= 1200) {
+            // TODO: display charge level 2
+         }
+         else if (this.chargeTime >= 500) {
+            // TODO: display charge level 1
+         }
       }
       else if (this.chargeTime > 0) {
          console.log("Fire!");
-         this.chargeTime = 0;
+         this.launchProjectile();
       }
+   }
+
+   launchProjectile() {
+      let chargeLevel = 0;
+      if (this.chargeTime >= 1200) chargeLevel = 2;
+      else if (this.chargeTime >= 500) chargeLevel = 1;
+
+      console.log(`Charged for ${this.chargeTime} ms, fired at charge level ${chargeLevel}`);
+      let dir = this.playerChar.flipX ? -1 : 1;
+      let xPos = this.playerChar.x + dir * 90;
+      let yPos = this.playerChar.y - 30;
+      
+      let colliderSize;
+      switch (chargeLevel) {
+         case 0: colliderSize = 25; break;
+         case 1: colliderSize = 60; break;
+         case 2: colliderSize = 100; break;
+      }
+      let ball = this.physics.add.image(xPos, yPos, 'bullet', chargeLevel).setSize(colliderSize, colliderSize);
+      let speed = 270 + chargeLevel * 120;
+      ball.setVelocityX(speed * dir);
+      this.physics.add.overlap(ball, this.target, () => {
+         ball.destroy();
+
+         let effectMagnitude = 1;
+         switch (chargeLevel) {
+            case 1: effectMagnitude = 3; break;
+            case 2: effectMagnitude = 5; break;
+         }
+         if (this.targetCharge < 5) {
+            this.targetCharge += effectMagnitude;
+            this.target.setFrame(Math.min(this.targetCharge, 5));
+            if (this.targetCharge >= 5) {
+               this.objectiveComplete = true;
+               this.platforms[0].setVisible(true);
+               this.tweens.add({
+                  targets: this.platforms[0],
+                  alpha: {start: 0, to: 1},
+                  duration: 600,
+                  onComplete: () => { this.platformsActive[0] = true }
+               });
+            }
+         }
+      });
+      this.chargeTime = 0;
    }
 }
 
@@ -240,12 +298,63 @@ class LevelSummary extends Phaser.Scene {
 
          this.input.keyboard.on('keydown', () => {
             this.cameras.main.fadeOut(1000, 0, 0, 0, (c, t) => {
-               if (t >= 1) this.scene.start(`lvl${this.level + 1}`);
+               if (t >= 1) this.scene.start(`lvl${this.level + 1}`, {"totalTime" : this.totalTime});
             });
          });
       }
       else {
-         // TODO: set up level 3 summary
+         let tCentiseconds = (Math.floor(this.totalTime / 10) % 100).toString().padStart(2, "0");
+         let tSeconds = (Math.floor(this.totalTime / 1000) % 60).toString().padStart(2, "0");
+         let tMinutes = Math.floor(this.totalTime / 60000);
+
+         this.add.text(960, 540, `Total time: ${tMinutes}:${tSeconds}'${tCentiseconds}"`)
+            .setFontSize(50)
+            .setAlign('center')
+            .setOrigin(0.5);
+
+         let bottomLine = this.add.text(960, 720, "Press left or right arrow key to select, then press enter/return to confirm.")
+            .setFontSize(40)
+            .setAlign('center')
+            .setWordWrapWidth(1000)
+            .setOrigin(0.5, 0);
+
+         let quitBacking = this.add.rectangle(0, 0, 360, 90, 0xffffff)
+         let quitButton = this.add.container().setPosition(600, 900)
+            .add(quitBacking)
+            .add(this.add.text(0, 0, "Quit").setOrigin(0.5).setFontSize(45).setColor("0"));
+
+         let reBacking = this.add.rectangle(0, 0, 360, 90, 0xffffff)
+         let reButton = this.add.container().setPosition(1320, 900)
+            .add(reBacking)
+            .add(this.add.text(0, 0, "Restart").setOrigin(0.5).setFontSize(45).setColor("0"));
+
+         this.option = 0;
+
+         this.input.keyboard.on('keydown-LEFT', () => {
+            quitBacking.setFillStyle(0x00bb99);
+            reBacking.setFillStyle(0xffffff);
+            this.option = 1;
+         });
+
+         this.input.keyboard.on('keydown-RIGHT', () => {
+            quitBacking.setFillStyle(0xffffff);
+            reBacking.setFillStyle(0x00bb99);
+            this.option = 2;
+         });
+
+         this.input.keyboard.on('keydown-ENTER', () => {
+            this.cameras.main.fadeOut(1000, 0, 0, 0, (c, t) => {
+               if (t >= 1){
+                  let target;
+                  switch(this.option) {
+                     case 1: target = 'start'; break;
+                     case 2: target = 'lvl1'; break;
+                     default: console.log("Ruh roh, Raggy");
+                  }
+                  this.scene.start(target);
+               }
+            });
+         });
       }
    }
 }
