@@ -4,7 +4,7 @@ class Intro extends Phaser.Scene {
    }
 
    preload() {
-      this.load.path = "../assets/";
+      this.load.path = "./assets/";
       this.load.spritesheet("sharkman", "textures/sharkman.png", { frameWidth: 120, frameHeight: 120 });
       this.load.spritesheet("bullet", "textures/energyBall.png", { frameWidth: 120, frameHeight: 120 });
       this.load.spritesheet("target", "textures/targetBlock.png", { frameWidth: 120, frameHeight: 120 });
