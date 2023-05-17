@@ -18,7 +18,7 @@ class Intro extends Phaser.Scene {
    }
 
    create() {
-      this.input.keyboard.on('keydown', () => {
+      this.input.keyboard.once('keydown', () => {
          this.cameras.main.fadeOut(1000, 0, 0, 0, (c, t) => {
             if (t >= 1) this.scene.start('lvl1');
          });
@@ -76,7 +76,6 @@ class Level1 extends Level {
          frames: this.anims.generateFrameNumbers('sharkman', {start: 12, end: 12}),
          repeat: -1
       });
-
       super.create();
    }
 }

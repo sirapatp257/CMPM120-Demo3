@@ -55,7 +55,7 @@ class Level extends Phaser.Scene {
          }
       }
 
-      let exit = this.physics.add.sprite(levelData.goal.x, levelData.goal.y, 'exit')
+      this.exit = this.physics.add.sprite(levelData.goal.x, levelData.goal.y, 'exit')
          .setOrigin(0.5)
          .setScale(2)
          .setSize(50, 120); // Hitbox size, not sprite size
@@ -99,7 +99,7 @@ class Level extends Phaser.Scene {
 
          this.physics.add.overlap(this.playerChar, collectible, () => {
             collectible.destroy();
-            this.objectiveComplete = true;
+            this.enableExit();
          });
       }
       
@@ -115,8 +115,40 @@ class Level extends Phaser.Scene {
       this.jump = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
       this.drop = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
       this.charge = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+      
+      // Multiplier number tweens to help create flashing effects
+      this.flashTweens = [];
+      this.flashTweens[0] = this.tweens.addCounter({
+         duration: 750,
+         yoyo: true,
+         repeat: -1,
+         paused: true
+      });
+      this.flashTweens[1] = this.tweens.addCounter({
+         duration: 200,
+         yoyo: true,
+         repeat: -1,
+         paused: true
+      });
+      this.flashTweens[2] = this.tweens.addCounter({
+         duration: 100,
+         yoyo: true,
+         repeat: -1,
+         paused: true
+      });
 
-      this.physics.add.overlap(this.playerChar, exit, () => {
+      this.chargeParticles = this.add.particles(0, 0, 'bullet', {
+         scale: {start: 1.25, end: 0},
+         speedY: -180,
+         lifespan: 800,
+         frequency: 150,
+         depth: 6,
+         emitting: false
+      });
+      this.chargeParticles.depth = 3;
+      console.log(this.chargeParticles);
+
+      this.physics.add.overlap(this.playerChar, this.exit, () => {
          if (this.objectiveComplete) this.exitReached = true
       });
       this.physics.add.collider(this.playerChar, floorGroup);
@@ -124,6 +156,13 @@ class Level extends Phaser.Scene {
    }
 
    update(t, dt) {
+      if (this.objectiveComplete) {
+         let progress = this.flashTweens[0].getValue();
+         let intensity = 255 * progress;
+         let color = Phaser.Display.Color.GetColor(intensity, intensity, intensity);
+         this.exit.setTint(color);
+      }
+
       if (this.exitReached) {
          if (this.fadeOutStarted) return;
          this.fadeOutStarted = true;
@@ -176,19 +215,44 @@ class Level extends Phaser.Scene {
       if (this.level == 2) return;
 
       if (this.charge.isDown) {
-         console.log("Charging...");
          this.chargeTime += dt;
 
          if (this.chargeTime >= 1200) {
-            // TODO: display charge level 2
+            if (this.flashTweens[2].isPaused()) this.flashTweens[2].restart();
+            let progress = this.flashTweens[1].getValue();
+            
+            let r = 255;
+            let g = 255 - progress * (255 - 218);
+            let b = 255 - progress * (255 - 84);
+            let tint = Phaser.Display.Color.GetColor(r, g, b);
+            
+            this.playerChar.setTint(tint);
+            this.chargeParticles.setParticleTint(tint);
          }
          else if (this.chargeTime >= 500) {
-            // TODO: display charge level 1
+            if (this.flashTweens[1].isPaused()) this.flashTweens[1].restart();
+            let progress = this.flashTweens[1].getValue();
+            
+            let r = 255 - progress * (255 - 84);
+            let g = 255;
+            let b = 255 - progress * (255 - 147);
+            let tint = Phaser.Display.Color.GetColor(r, g, b);
+            
+            this.playerChar.setTint(tint);
+            this.chargeParticles.setParticleTint(tint);
          }
+
+         let xOffset = -80 + Math.random() * 160;
+         let yOffset = 40 + Math.random() * 40;
+         this.chargeParticles.startFollow(this.playerChar, xOffset, yOffset);
+         this.chargeParticles.emitting = true;
       }
       else if (this.chargeTime > 0) {
-         console.log("Fire!");
          this.launchProjectile();
+         for (let t = 1; t < 3; ++t) this.flashTweens[t].pause();
+         this.chargeParticles.emitting = false;
+         this.chargeParticles.setParticleTint(0xffffff);
+         this.playerChar.clearTint();
       }
    }
 
@@ -197,7 +261,6 @@ class Level extends Phaser.Scene {
       if (this.chargeTime >= 1200) chargeLevel = 2;
       else if (this.chargeTime >= 500) chargeLevel = 1;
 
-      console.log(`Charged for ${this.chargeTime} ms, fired at charge level ${chargeLevel}`);
       let dir = this.playerChar.flipX ? -1 : 1;
       let xPos = this.playerChar.x + dir * 90;
       let yPos = this.playerChar.y - 30;
@@ -208,9 +271,17 @@ class Level extends Phaser.Scene {
          case 1: colliderSize = 60; break;
          case 2: colliderSize = 100; break;
       }
-      let ball = this.physics.add.image(xPos, yPos, 'bullet', chargeLevel).setSize(colliderSize, colliderSize);
+
+      let tint = 0xffffff;
+      if (chargeLevel == 1) tint = Phaser.Display.Color.GetColor(84, 255, 147);
+      else if (chargeLevel == 2) tint = Phaser.Display.Color.GetColor(255, 218, 84);
+
+      let ball = this.physics.add.image(xPos, yPos, 'bullet', chargeLevel).setSize(colliderSize, colliderSize).setTint(tint);
       let speed = 270 + chargeLevel * 120;
       ball.setVelocityX(speed * dir);
+      
+      // Probably not the best way to do collision detection,
+      // but this is good enough for the specific case of my D3.
       this.physics.add.overlap(ball, this.target, () => {
          ball.destroy();
 
@@ -219,11 +290,12 @@ class Level extends Phaser.Scene {
             case 1: effectMagnitude = 3; break;
             case 2: effectMagnitude = 5; break;
          }
+
          if (this.targetCharge < 5) {
             this.targetCharge += effectMagnitude;
             this.target.setFrame(Math.min(this.targetCharge, 5));
             if (this.targetCharge >= 5) {
-               this.objectiveComplete = true;
+               this.enableExit();
                this.platforms[0].setVisible(true);
                this.tweens.add({
                   targets: this.platforms[0],
@@ -235,6 +307,11 @@ class Level extends Phaser.Scene {
          }
       });
       this.chargeTime = 0;
+   }
+
+   enableExit() {
+      this.objectiveComplete = true;
+      this.flashTweens[0].play();
    }
 }
 
@@ -296,9 +373,11 @@ class LevelSummary extends Phaser.Scene {
             repeat: -1
          });
 
-         this.input.keyboard.on('keydown', () => {
-            this.cameras.main.fadeOut(1000, 0, 0, 0, (c, t) => {
-               if (t >= 1) this.scene.start(`lvl${this.level + 1}`, {"totalTime" : this.totalTime});
+         this.time.delayedCall(1500, () => {
+            this.input.keyboard.on('keydown', () => {
+               this.cameras.main.fadeOut(1000, 0, 0, 0, (c, t) => {
+                  if (t >= 1) this.scene.start(`lvl${this.level + 1}`, {"totalTime" : this.totalTime});
+               });
             });
          });
       }
@@ -343,6 +422,7 @@ class LevelSummary extends Phaser.Scene {
          });
 
          this.input.keyboard.on('keydown-ENTER', () => {
+            if (this.option == 0) return;
             this.cameras.main.fadeOut(1000, 0, 0, 0, (c, t) => {
                if (t >= 1){
                   let target;
