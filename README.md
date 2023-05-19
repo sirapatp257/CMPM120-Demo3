@@ -10,6 +10,8 @@ All artwork and sounds are made by me (Sirapat "Poom" Phunjamaneechot).
 
 All artwork was made using Aseprite.
 
+All sound effects were generated using Pure Data. charge1.mp3 and charge2.mp3 were edited with Audacity.
+
 ## Requirements Met
 
 * **The game uses both continuous and discrete inputs from the player**
