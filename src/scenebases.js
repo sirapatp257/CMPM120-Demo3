@@ -98,6 +98,7 @@ class Level extends Phaser.Scene {
          });
 
          this.physics.add.overlap(this.playerChar, collectible, () => {
+            this.sound.get("pickup").play();
             collectible.destroy();
             this.enableExit();
          });
@@ -149,7 +150,7 @@ class Level extends Phaser.Scene {
       console.log(this.chargeParticles);
 
       this.physics.add.overlap(this.playerChar, this.exit, () => {
-         if (this.objectiveComplete) this.exitReached = true
+         if (this.objectiveComplete) this.exitReached = true;
       });
       this.physics.add.collider(this.playerChar, floorGroup);
       this.stopwatch = 0;
@@ -194,6 +195,12 @@ class Level extends Phaser.Scene {
       if (this.playerChar.body.velocity.y < 0) this.playerChar.anims.play('jump', true);
       else if (this.playerChar.body.velocity.y > 0) this.playerChar.anims.play('fall', true);
 
+      let stepSound = this.sound.get("step");
+      if (this.playerChar.body.velocity.x != 0 && this.playerChar.body.touching.down) {
+         if (!stepSound.isPlaying) stepSound.play();
+      }
+      else stepSound.stop();
+
       this.stopwatch += dt;
 
       if (this.level == 1) return;
@@ -208,7 +215,10 @@ class Level extends Phaser.Scene {
 
       this.playerChar.setCollideWorldBounds(this.playerChar.body.onFloor() && this.playerChar.body.touching.down);
 
-      if (this.playerChar.body.touching.down && this.jump.isDown) this.playerChar.setVelocityY(-500);
+      if (this.playerChar.body.touching.down && this.jump.isDown) {
+         this.playerChar.setVelocityY(-500);
+         this.sound.get("jump").play();
+      }
       
       if (this.playerChar.body.y >= 1200) this.playerChar.setX(this.spawnPoint.x).setY(this.spawnPoint.y);
 
@@ -216,7 +226,6 @@ class Level extends Phaser.Scene {
 
       if (this.charge.isDown) {
          this.chargeTime += dt;
-
          if (this.chargeTime >= 1200) {
             if (this.flashTweens[2].isPaused()) this.flashTweens[2].restart();
             let progress = this.flashTweens[1].getValue();
@@ -228,6 +237,10 @@ class Level extends Phaser.Scene {
             
             this.playerChar.setTint(tint);
             this.chargeParticles.setParticleTint(tint);
+
+            this.sound.get("charge1").stop();
+            let chargeSound = this.sound.get("charge2");
+            if (!chargeSound.isPlaying) chargeSound.play();
          }
          else if (this.chargeTime >= 500) {
             if (this.flashTweens[1].isPaused()) this.flashTweens[1].restart();
@@ -240,6 +253,9 @@ class Level extends Phaser.Scene {
             
             this.playerChar.setTint(tint);
             this.chargeParticles.setParticleTint(tint);
+
+            let chargeSound = this.sound.get("charge1");
+            if (!chargeSound.isPlaying) chargeSound.play();
          }
 
          let xOffset = -80 + Math.random() * 160;
@@ -253,6 +269,8 @@ class Level extends Phaser.Scene {
          this.chargeParticles.emitting = false;
          this.chargeParticles.setParticleTint(0xffffff);
          this.playerChar.clearTint();
+         this.sound.get("charge1").stop();
+         this.sound.get("charge2").stop();
       }
    }
 
@@ -260,6 +278,11 @@ class Level extends Phaser.Scene {
       let chargeLevel = 0;
       if (this.chargeTime >= 1200) chargeLevel = 2;
       else if (this.chargeTime >= 500) chargeLevel = 1;
+
+      let shotSound = this.sound.get("shot");
+      shotSound.setVolume(0.5 + 0.25 * chargeLevel);
+      shotSound.setRate(0.8 * Math.pow(1.25, chargeLevel));
+      shotSound.play();
 
       let dir = this.playerChar.flipX ? -1 : 1;
       let xPos = this.playerChar.x + dir * 90;
@@ -292,6 +315,7 @@ class Level extends Phaser.Scene {
          }
 
          if (this.targetCharge < 5) {
+            this.sound.get("absorb").play();
             this.targetCharge += effectMagnitude;
             this.target.setFrame(Math.min(this.targetCharge, 5));
             if (this.targetCharge >= 5) {
@@ -327,6 +351,8 @@ class LevelSummary extends Phaser.Scene {
    }
 
    create() {
+      this.sound.stopAll();
+      this.sound.get("goal").play();
       this.cameras.main.fadeIn();
       
       let levelData = this.cache.json.get('levelData')[this.level];

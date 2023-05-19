@@ -14,6 +14,14 @@ class Intro extends Phaser.Scene {
       this.load.image("boots", "images/boots.png");
       this.load.image("weapon", "images/weapon.png");
       this.load.image("exit", "images/exitSign.png");
+      this.load.audio("step", "sounds/move.wav");
+      this.load.audio("jump", "sounds/jump.wav");
+      this.load.audio("charge1", "sounds/charge1.mp3");
+      this.load.audio("charge2", "sounds/charge2.mp3");
+      this.load.audio("shot", "sounds/shot.wav");
+      this.load.audio("absorb", "sounds/absorb.wav");
+      this.load.audio("goal", "sounds/goal.wav");
+      this.load.audio("pickup", "sounds/pickup.wav");
       this.load.json("levelData", "miscellaneous/levels.json");
    }
 
@@ -76,6 +84,16 @@ class Level1 extends Level {
          frames: this.anims.generateFrameNumbers('sharkman', {start: 12, end: 12}),
          repeat: -1
       });
+
+      this.sound.add("step", {volume: 0.75, loop: true});
+      this.sound.add("jump");
+      this.sound.add("charge1", {loop: true});
+      this.sound.add("charge2", {loop: true});
+      this.sound.add("shot");
+      this.sound.add("absorb");
+      this.sound.add("goal");
+      this.sound.add("pickup");
+
       super.create();
    }
 }
