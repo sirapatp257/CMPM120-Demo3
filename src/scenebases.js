@@ -14,6 +14,8 @@ class Level extends Phaser.Scene {
       this.fadeOutStarted = false;
       this.chargeTime = 0;
 
+      this.sound.get("bgm").play();
+      
       let levelData = this.cache.json.get('levelData')[this.level];
       this.spawnPoint = levelData.spawn;
 

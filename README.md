@@ -12,6 +12,8 @@ All artwork was made using Aseprite.
 
 All sound effects were generated using Pure Data. charge1.mp3 and charge2.mp3 were edited with Audacity.
 
+Level background music (bgm.mp3) was composed with Bosca Ceoil.
+
 ## Requirements Met
 
 * **The game uses both continuous and discrete inputs from the player**

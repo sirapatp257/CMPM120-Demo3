@@ -22,6 +22,7 @@ class Intro extends Phaser.Scene {
       this.load.audio("absorb", "sounds/absorb.wav");
       this.load.audio("goal", "sounds/goal.wav");
       this.load.audio("pickup", "sounds/pickup.wav");
+      this.load.audio("bgm", "sounds/bgm.mp3");
       this.load.json("levelData", "miscellaneous/levels.json");
    }
 
@@ -93,6 +94,7 @@ class Level1 extends Level {
       this.sound.add("absorb");
       this.sound.add("goal");
       this.sound.add("pickup");
+      this.sound.add("bgm", {loop: true});
 
       super.create();
    }
